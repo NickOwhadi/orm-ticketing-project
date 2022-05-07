@@ -20,7 +20,7 @@ public class User extends BaseEntity {
     private boolean enabled;
     private String phone;
     @ManyToOne
-    @JoinColumn(name = "role-id")
+    @JoinColumn(name = "role_id")
     private Role role;
     @Enumerated(EnumType.STRING)
     private Gender gender;
