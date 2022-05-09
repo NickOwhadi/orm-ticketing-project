@@ -4,10 +4,13 @@ import com.example.ormticketingproject.dto.UserDTO;
 
 import java.util.List;
 
-public interface UserService extends CrudService<UserDTO, String> {
+public interface UserService {
 
-    List<UserDTO> findManagers();
+    List<UserDTO> listAllUsers();
 
-    List<UserDTO> findEmployees();
+    UserDTO findByUserName(String user);
+    void save(UserDTO dto);
+    UserDTO update(UserDTO dto);
+    void deleteByUserName(String username);
 
 }
