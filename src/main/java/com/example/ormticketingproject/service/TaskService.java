@@ -6,14 +6,14 @@ import com.example.ormticketingproject.enums.Status;
 
 import java.util.List;
 
-public interface TaskService extends CrudService<TaskDTO, Long> {
+public interface TaskService {
 
-    List<TaskDTO> findTasksByManager(UserDTO manager);
-
-    List<TaskDTO> findAllTasksByStatus(Status status);
-
-    List<TaskDTO> findAllTasksByStatusIsNot(Status status);
-
-    void updateStatus(TaskDTO task);
+//    List<TaskDTO> findTasksByManager(UserDTO manager);
+//
+//    List<TaskDTO> findAllTasksByStatus(Status status);
+//
+//    List<TaskDTO> findAllTasksByStatusIsNot(Status status);
+//
+//    void updateStatus(TaskDTO task);
 
 }

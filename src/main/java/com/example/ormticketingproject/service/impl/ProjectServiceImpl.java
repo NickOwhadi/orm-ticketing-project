@@ -13,85 +13,124 @@ import java.util.stream.Collectors;
 
 
 @Service
-public class ProjectServiceImpl extends AbstractMapService<ProjectDTO, String> implements ProjectService {
-
-    private final TaskService taskService;
-
-    public ProjectServiceImpl(TaskService taskService) {
-        this.taskService = taskService;
+public class ProjectServiceImpl  implements ProjectService {
+    @Override
+    public ProjectDTO getByProjectCode(String code) {
+        return null;
     }
 
     @Override
-    public ProjectDTO save(ProjectDTO object) {
-
-        if (object.getProjectStatus() == null) {
-            object.setProjectStatus(Status.OPEN);
-        }
-
-        return super.save(object.getProjectCode(), object);
+    public List<ProjectDTO> listAllProjects() {
+        return null;
     }
 
     @Override
-    public List<ProjectDTO> findAll() {
-        return super.findAll();
+    public void save(ProjectDTO dto) {
+
     }
 
     @Override
-    public void update(ProjectDTO object) {
+    public void update(ProjectDTO dto) {
 
-        ProjectDTO newproject = findById(object.getProjectCode());
-
-        if (object.getProjectStatus() == null)
-            object.setProjectStatus(newproject.getProjectStatus());
-        super.update(object.getProjectCode(), object);
     }
 
     @Override
-    public void deleteById(String id) {
-        super.deleteById(id);
+    public void delete(String code) {
+
     }
 
-    @Override
-    public ProjectDTO findById(String id) {
-        return super.findById(id);
-    }
+//    private final TaskService taskService;
+//
+//    public ProjectServiceImpl(TaskService taskService) {
+//        this.taskService = taskService;
+//    }
+//
+//    @Override
+//    public void complete(ProjectDTO project) {
+//
+//    }
+//
+//    @Override
+//    public List<ProjectDTO> findAllNonCompletedProjects() {
+//        return null;
+//    }
+//
+//    @Override
+//    public List<ProjectDTO> getCountedListOfProjectDTO(UserDTO manager) {
+//        return null;
+//    }
 
-    @Override
-    public void complete(ProjectDTO project) {
-        project.setProjectStatus(Status.COMPLETE);
-        super.save(project.getProjectCode(), project);
-    }
+//    @Override
+//    public ProjectDTO save(ProjectDTO object) {
+//
+//        if (object.getProjectStatus() == null) {
+//            object.setProjectStatus(Status.OPEN);
+//        }
+//
+//        return super.save(object.getProjectCode(), object);
+//    }
 
-    @Override
-    public List<ProjectDTO> findAllNonCompletedProjects() {
-        return findAll().stream().filter(project -> !project.getProjectStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
-    }
+//    @Override
+//    public List<ProjectDTO> findAll() {
+//        return super.findAll();
+//    }
 
-    @Override
-    public List<ProjectDTO> getCountedListOfProjectDTO(UserDTO manager) {
+//    @Override
+//    public void update(ProjectDTO object) {
+//
+//        ProjectDTO newproject = findById(object.getProjectCode());
+//
+//        if (object.getProjectStatus() == null)
+//            object.setProjectStatus(newproject.getProjectStatus());
+//        super.update(object.getProjectCode(), object);
+//    }
 
-        List<ProjectDTO> projectList =
-                findAll()
-                        .stream()
-                        .filter(project -> project.getAssignedManager().equals(manager))
-                        .map(project -> {
-
-                            List<TaskDTO> taskList = taskService.findTasksByManager(manager);
-
-                            int completeTaskCounts = (int) taskList.stream().filter(t -> t.getProject().equals(project) && t.getTaskStatus() == Status.COMPLETE).count();
-
-                            int unfinishedTaskCounts = (int) taskList.stream().filter(t -> t.getProject().equals(project) && t.getTaskStatus() != Status.COMPLETE).count();
-
-                            project.setCompleteTaskCounts(completeTaskCounts);
-                            project.setUnfinishedTaskCounts(unfinishedTaskCounts);
-
-                            return project;
-
-                        }).collect(Collectors.toList());
-
-
-        return projectList;
-    }
+//    @Override
+//    public void deleteById(String id) {
+//        super.deleteById(id);
+//    }
+//
+//    @Override
+//    public ProjectDTO findById(String id) {
+//        return super.findById(id);
+//    }
+//
+//    @Override
+//    public void complete(ProjectDTO project) {
+//        project.setProjectStatus(Status.COMPLETE);
+//        super.save(project.getProjectCode(), project);
+//    }
+//
+//    @Override
+//    public List<ProjectDTO> findAllNonCompletedProjects() {
+//        return findAll().stream().filter(project -> !project.getProjectStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
+//    }
+//
+//    @Override
+//    public List<ProjectDTO> getCountedListOfProjectDTO(UserDTO manager) {
+//
+//        List<ProjectDTO> projectList =
+//                findAll()
+//                        .stream()
+//                        .filter(project -> project.getAssignedManager().equals(manager))
+//                        .map(project -> {
+//
+//                            List<TaskDTO> taskList = taskService.findTasksByManager(manager);
+//
+//                            int completeTaskCounts = (int) taskList.stream().filter(t -> t.getProject().equals(project) && t.getTaskStatus() == Status.COMPLETE).count();
+//
+//                            int unfinishedTaskCounts = (int) taskList.stream().filter(t -> t.getProject().equals(project) && t.getTaskStatus() != Status.COMPLETE).count();
+//
+//                            project.setCompleteTaskCounts(completeTaskCounts);
+//                            project.setUnfinishedTaskCounts(unfinishedTaskCounts);
+//
+//                            return project;
+//
+//                        }).collect(Collectors.toList());
+//
+//
+//        return projectList;
+//    }
 
 }
 
