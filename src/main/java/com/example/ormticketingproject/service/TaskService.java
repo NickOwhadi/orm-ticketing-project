@@ -8,12 +8,12 @@ import java.util.List;
 
 public interface TaskService {
 
-//    List<TaskDTO> findTasksByManager(UserDTO manager);
-//
-//    List<TaskDTO> findAllTasksByStatus(Status status);
-//
-//    List<TaskDTO> findAllTasksByStatusIsNot(Status status);
-//
-//    void updateStatus(TaskDTO task);
+    TaskDTO findById(Long id);
+    List<TaskDTO> listAllTasks();
+    void save(TaskDTO dto);
+    void update(TaskDTO dto);
+    void delete(Long id);
+    int totalNonCompletedTask(String projectCode);
+    int totalCompletedTask(String projectCode);
 
 }

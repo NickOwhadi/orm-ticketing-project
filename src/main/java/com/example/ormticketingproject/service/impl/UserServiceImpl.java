@@ -26,42 +26,57 @@ public class UserServiceImpl  implements UserService {
 
     @Override
     public List<UserDTO> listAllUsers() {
-        return userRepository.findAll(Sort.by("firstName")).stream().map(userMapper::convertToDto).collect(Collectors.toList());
+
+        List<User> userList = userRepository.findAll(Sort.by("firstName"));
+        return userList.stream().map(userMapper::convertToDTO).collect(Collectors.toList());
+
     }
 
     @Override
-    public UserDTO findByUserName(String user) {
-        return userMapper.convertToDto(userRepository.findByUserName(user));
+    public UserDTO findByUserName(String username) {
+        User user = userRepository.findByUserName(username);
+        return userMapper.convertToDTO(user);
     }
 
     @Override
     public void save(UserDTO dto) {
+
         userRepository.save(userMapper.convertToEntity(dto));
     }
 
     @Override
     public UserDTO update(UserDTO dto) {
-       User user= userRepository.findByUserName(dto.getUserName());
-       User convertedUser=userMapper.convertToEntity(dto);
-       convertedUser.setId(user.getId());
-       userRepository.save(convertedUser);
-       return findByUserName(dto.getUserName());
 
+        //Find current user
+        User user = userRepository.findByUserName(dto.getUserName());
+        //Map updated user dto to entity object
+        User convertedUser = userMapper.convertToEntity(dto);
+        //set id to converted object
+        convertedUser.setId(user.getId());
+        //save updated user
+        userRepository.save(convertedUser);
+
+        return findByUserName(dto.getUserName());
     }
 
     @Override
     public void deleteByUserName(String username) {
-       // userRepository.delete(userRepository.findByUserName(username));
-
         userRepository.deleteByUserName(username);
+
     }
 
     @Override
     public void delete(String username) {
-        User user=userRepository.findByUserName(username);
+        User user = userRepository.findByUserName(username);
         user.setIsDeleted(true);
         userRepository.save(user);
     }
 
+    @Override
+    public List<UserDTO> listAllByRole(String role) {
 
+        List<User> users = userRepository.findAllByRoleDescriptionIgnoreCase(role);
+
+        return users.stream().map(userMapper::convertToDTO).collect(Collectors.toList());
+    }
 }

@@ -1,11 +1,17 @@
 package com.example.ormticketingproject.service.impl;
 
 import com.example.ormticketingproject.dto.ProjectDTO;
-import com.example.ormticketingproject.dto.TaskDTO;
 import com.example.ormticketingproject.dto.UserDTO;
+import com.example.ormticketingproject.entity.Project;
+import com.example.ormticketingproject.entity.User;
 import com.example.ormticketingproject.enums.Status;
+import com.example.ormticketingproject.mapper.ProjectMapper;
+import com.example.ormticketingproject.mapper.UserMapper;
+import com.example.ormticketingproject.repository.ProjectRepository;
+import com.example.ormticketingproject.repository.TaskRepository;
 import com.example.ormticketingproject.service.ProjectService;
 import com.example.ormticketingproject.service.TaskService;
+import com.example.ormticketingproject.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,124 +20,95 @@ import java.util.stream.Collectors;
 
 @Service
 public class ProjectServiceImpl  implements ProjectService {
+
+    private final ProjectRepository projectRepository;
+    private final ProjectMapper projectMapper;
+    private final UserService userService;
+    private final UserMapper userMapper;
+    private final TaskService taskService;
+
+    public ProjectServiceImpl(ProjectRepository projectRepository, ProjectMapper projectMapper, UserService userService, UserMapper userMapper, TaskService taskService) {
+        this.projectRepository = projectRepository;
+        this.projectMapper = projectMapper;
+        this.userService = userService;
+        this.userMapper = userMapper;
+        this.taskService = taskService;
+    }
+
     @Override
     public ProjectDTO getByProjectCode(String code) {
-        return null;
+        Project project = projectRepository.findByProjectCode(code);
+        return projectMapper.convertToDto(project);
     }
 
     @Override
     public List<ProjectDTO> listAllProjects() {
-        return null;
+
+        List<Project> list = projectRepository.findAll();
+        return list.stream().map(projectMapper::convertToDto).collect(Collectors.toList());
+
     }
 
     @Override
     public void save(ProjectDTO dto) {
+
+        dto.setProjectStatus(Status.OPEN);
+
+        Project project = projectMapper.convertToEntity(dto);
+        projectRepository.save(project);
+
 
     }
 
     @Override
     public void update(ProjectDTO dto) {
 
+        Project project = projectRepository.findByProjectCode(dto.getProjectCode());
+        Project convertedProject = projectMapper.convertToEntity(dto);
+        convertedProject.setId(project.getId());
+        convertedProject.setProjectStatus(project.getProjectStatus());
+
+        projectRepository.save(convertedProject);
+
+
     }
 
     @Override
     public void delete(String code) {
+        Project project = projectRepository.findByProjectCode(code);
+        project.setIsDeleted(true);
+        projectRepository.save(project);
 
     }
 
-//    private final TaskService taskService;
-//
-//    public ProjectServiceImpl(TaskService taskService) {
-//        this.taskService = taskService;
-//    }
-//
-//    @Override
-//    public void complete(ProjectDTO project) {
-//
-//    }
-//
-//    @Override
-//    public List<ProjectDTO> findAllNonCompletedProjects() {
-//        return null;
-//    }
-//
-//    @Override
-//    public List<ProjectDTO> getCountedListOfProjectDTO(UserDTO manager) {
-//        return null;
-//    }
+    @Override
+    public void complete(String projectCode) {
+        Project project = projectRepository.findByProjectCode(projectCode);
+        project.setProjectStatus(Status.COMPLETE);
+        projectRepository.save(project);
+    }
 
-//    @Override
-//    public ProjectDTO save(ProjectDTO object) {
-//
-//        if (object.getProjectStatus() == null) {
-//            object.setProjectStatus(Status.OPEN);
-//        }
-//
-//        return super.save(object.getProjectCode(), object);
-//    }
+    @Override
+    public List<ProjectDTO> listAllProjectDetails() {
 
-//    @Override
-//    public List<ProjectDTO> findAll() {
-//        return super.findAll();
-//    }
+        UserDTO currentUserDTO = userService.findByUserName("harold@manager.com");
+        User user = userMapper.convertToEntity(currentUserDTO);
 
-//    @Override
-//    public void update(ProjectDTO object) {
-//
-//        ProjectDTO newproject = findById(object.getProjectCode());
-//
-//        if (object.getProjectStatus() == null)
-//            object.setProjectStatus(newproject.getProjectStatus());
-//        super.update(object.getProjectCode(), object);
-//    }
+        List<Project> list = projectRepository.findAllByAssignedManager(user);
 
-//    @Override
-//    public void deleteById(String id) {
-//        super.deleteById(id);
-//    }
-//
-//    @Override
-//    public ProjectDTO findById(String id) {
-//        return super.findById(id);
-//    }
-//
-//    @Override
-//    public void complete(ProjectDTO project) {
-//        project.setProjectStatus(Status.COMPLETE);
-//        super.save(project.getProjectCode(), project);
-//    }
-//
-//    @Override
-//    public List<ProjectDTO> findAllNonCompletedProjects() {
-//        return findAll().stream().filter(project -> !project.getProjectStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
-//    }
-//
-//    @Override
-//    public List<ProjectDTO> getCountedListOfProjectDTO(UserDTO manager) {
-//
-//        List<ProjectDTO> projectList =
-//                findAll()
-//                        .stream()
-//                        .filter(project -> project.getAssignedManager().equals(manager))
-//                        .map(project -> {
-//
-//                            List<TaskDTO> taskList = taskService.findTasksByManager(manager);
-//
-//                            int completeTaskCounts = (int) taskList.stream().filter(t -> t.getProject().equals(project) && t.getTaskStatus() == Status.COMPLETE).count();
-//
-//                            int unfinishedTaskCounts = (int) taskList.stream().filter(t -> t.getProject().equals(project) && t.getTaskStatus() != Status.COMPLETE).count();
-//
-//                            project.setCompleteTaskCounts(completeTaskCounts);
-//                            project.setUnfinishedTaskCounts(unfinishedTaskCounts);
-//
-//                            return project;
-//
-//                        }).collect(Collectors.toList());
-//
-//
-//        return projectList;
-//    }
+        return list.stream().map(project -> {
 
+            ProjectDTO obj = projectMapper.convertToDto(project);
+
+            obj.setUnfinishedTaskCounts(taskService.totalNonCompletedTask(project.getProjectCode()));
+            obj.setCompleteTaskCounts(taskService.totalCompletedTask(project.getProjectCode()));
+
+
+            return obj;
+
+
+        }).collect(Collectors.toList());
+    }
 }
 
 
